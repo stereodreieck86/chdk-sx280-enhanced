@@ -13,6 +13,7 @@
 #include "ptp.h" // for remotecap constants
 #include "script_api.h" // for script hook
 #include "raw_ev_histo.h"
+#include "sx280_logger.h"
 
 //-------------------------------------------------------------------
 #ifdef CAM_DATE_FOLDER_NAMING
@@ -174,10 +175,12 @@ static int raw_savefile(char *rawadr, char *altrawadr) {
         }
     }
 
+    int elapsed_ms = get_tick_count() - timer;
+    sx280_log_raw(conf.dng_raw, conf.dng_version, ret, elapsed_ms);
+
     if (conf.raw_timer) {
         char txt[30];
-        timer=get_tick_count()-timer;
-        sprintf(txt, "saving time=%d", timer);
+        sprintf(txt, "saving time=%d", elapsed_ms);
         console_add_line(txt);
     }
 

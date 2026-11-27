@@ -6,6 +6,7 @@
 #include "gui_draw.h"
 #include "gui_lang.h"
 #include "gui_mbox.h"
+#include "sx280_logger.h"
 
 //-------------------------------------------------------------------
 void gui_mbox_draw();
@@ -70,6 +71,7 @@ void gui_mbox_init(int title, int msg, const unsigned int flags, void (*on_selec
 
     mbox_title = lang_str(title);
     mbox_msg = lang_str(msg);
+    sx280_log_mbox(mbox_title, mbox_msg, flags);
     mbox_to_draw = 3;
     mbox_flags = flags;
     mbox_on_select = on_select;
