@@ -371,7 +371,7 @@ int get_usb_power(int mode)
 
   ===================================================================================================*/
 
-extern void (*usb_driver[])( ) ;
+extern void (*usb_driver[])(int) ;
 extern void (*usb_module_play[])( ) ;
 extern void (*usb_module_shoot[])( ) ;
 extern void (*usb_module_video[])( ) ;

@@ -387,7 +387,7 @@ long shooting_get_current_delta_sv96() { return _get_current_deltasv(); }
 long shooting_get_current_base_sv96() { return _GetCurrentDriveBaseSvValue(); }
 
 long IsStrobeChargeCompleted()      { return _IsStrobeChargeCompleted(); }
-void SetCurrentCaptureModeType()    { _SetCurrentCaptureModeType(); }
+void SetCurrentCaptureModeType(int mode)    { _SetCurrentCaptureModeType(mode); }
 
 #if CAM_HAS_IRIS_DIAPHRAGM
 // returns available Av range in AV96 on cameras with iris.

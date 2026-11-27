@@ -16,7 +16,7 @@
 
 extern void gui_read_kbd_process_menu_btn();
 int gui_read_kbd_process();
-void gui_read_draw();
+void gui_read_draw(int force_redraw);
 void gui_read_kbd_leave();
 
 gui_handler GUI_MODE_READ = 

@@ -14,8 +14,8 @@ typedef struct
 
 	void (*curve_init_mode)();
 	void (*curve_apply)();
-    void (*curve_set_mode)();
-    void (*curve_set_file)();
+    void (*curve_set_mode)(int mode);
+    void (*curve_set_file)(const char *filename);
 } libcurves_sym;
 
 extern libcurves_sym* libcurves;

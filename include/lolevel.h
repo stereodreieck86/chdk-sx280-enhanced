@@ -313,7 +313,7 @@ extern int _EngDrvRead(int gpio_reg);
 extern int _apex2us(int);
 
 extern void _ScreenLock();
-extern void _SetCurrentCaptureModeType();
+extern void _SetCurrentCaptureModeType(int mode);
 extern unsigned _ExecuteEventProcedure(const char *name, ...);
 // known in CHDK as _RefreshPhysicalScreen
 //extern void _ScreenUnLock();
