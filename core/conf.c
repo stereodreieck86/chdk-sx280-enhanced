@@ -547,6 +547,8 @@ static ConfInfo conf_info[] = {
     CONF_INFO(268, conf.raw_ev_histo_ettr_pct,                  CONF_DEF_VALUE, i:1),  // .1% (Decimal * 10)
     CONF_INFO(269, conf.raw_ev_histo_save_for_image,            CONF_DEF_VALUE, i:0),
 
+    CONF_INFO(274, conf.simple_ui_mode,                         CONF_DEF_VALUE, i:0),
+
     CONF_INFO(999, conf.script_allow_lua_native_calls,          CONF_DEF_VALUE, i:0),
 
     {0}

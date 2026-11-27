@@ -28,6 +28,7 @@
 #include "lens.h"
 #include "properties.h"
 #include "file_counter.h"
+#include "profiles.h"
 #include "debug_led.h"
 #include "meminfo.h"
 #include "callfunc.h"
@@ -1028,6 +1029,14 @@ static int luaCB_set_iso_real( lua_State* L )
 {
   shooting_set_iso_real( luaL_checknumber( L, 1 ),  shooting_in_progress()?SET_NOW:SET_LATER );
   return 0;
+}
+
+static int luaCB_set_profile( lua_State* L )
+{
+  int profile_id = luaL_checknumber( L, 1 );
+  int result = sx280_apply_profile( profile_id );
+  lua_pushnumber( L, result );
+  return 1;
 }
 
 static int luaCB_set_led( lua_State* L )
@@ -2954,6 +2963,7 @@ static const luaL_Reg chdk_funcs[] = {
     FUNC(set_nd_filter)
     FUNC(set_prop)
     FUNC(set_prop_str)
+    FUNC(set_profile)
     FUNC(set_raw_nr)
     FUNC(set_raw)
     FUNC(set_sv96)

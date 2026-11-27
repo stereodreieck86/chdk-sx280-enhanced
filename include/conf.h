@@ -480,6 +480,9 @@ typedef struct
     int raw_ev_histo_ettr_pct;
     int raw_ev_histo_save_for_image;
 
+    // Appended at end of struct Conf to preserve existing field offsets for loadable .flt modules
+    int simple_ui_mode;
+
 } Conf;
 
 extern Conf conf;
