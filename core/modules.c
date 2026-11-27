@@ -445,17 +445,17 @@ static void default_curve_init_mode()
     if (module_curves_load())
         libcurves->curve_init_mode();
 }
-static void default_curve_set_mode()
+static void default_curve_set_mode(int mode)
 {
     // If load succeeded call module version of function
     if (module_curves_load())
-        libcurves->curve_set_mode();
+        libcurves->curve_set_mode(mode);
 }
-static void default_curve_set_file()
+static void default_curve_set_file(const char *filename)
 {
     // If load succeeded call module version of function
     if (module_curves_load())
-        libcurves->curve_set_file();
+        libcurves->curve_set_file(filename);
 }
 
 // Default library - module unloaded

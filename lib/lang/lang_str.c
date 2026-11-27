@@ -14,7 +14,7 @@ void gui_lang_init() {
     // this function do init and then map preparsed
     lang_map_preparsed_from_mem( gui_lang_default, GUI_LANG_ITEMS );
 
-    if (conf.lang_file && *conf.lang_file) {
+    if (conf.lang_file[0]) {
         lang_load_from_file(conf.lang_file);
     }
 }

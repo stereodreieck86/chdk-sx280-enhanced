@@ -190,7 +190,7 @@ extern long shooting_get_current_tv96();
 extern long shooting_get_current_delta_sv96();
 extern long shooting_get_current_base_sv96();
 extern long IsStrobeChargeCompleted();
-extern void SetCurrentCaptureModeType();
+extern void SetCurrentCaptureModeType(int mode);
 extern int shooting_get_imager_active();
 extern int shooting_get_analog_video_standard(void);
 extern int get_ev_video_avail(void);

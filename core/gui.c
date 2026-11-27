@@ -23,6 +23,7 @@
 #include "usb_remote.h"
 #include "module_load.h"
 #include "clock.h"
+#include "profiles.h"
 #include "dirent.h"
 #include "raw_ev_histo.h"
 
@@ -1967,11 +1968,15 @@ static CMenu zebra_submenu = {0x26,LANG_MENU_ZEBRA_TITLE, zebra_submenu_items };
 
 //-------------------------------------------------------------------
 
+static void sx280_sync_lang_and_codepage(const char *fn, int apply_cp);
+
 static void gui_draw_lang_selected(const char *fn)
 {
     if (fn) {
         strcpy(conf.lang_file, fn);
+        sx280_sync_lang_and_codepage(conf.lang_file, 1);
         lang_load_from_file(conf.lang_file);
+        conf_save();
         gui_menu_init(NULL);
     }
 }
@@ -2177,6 +2182,7 @@ static CMenuItem chdk_settings_menu_items[] = {
     MENU_ITEM   (0x5c,LANG_MENU_MISC_ZOOM_ASSIST,           MENUITEM_BOOL,      &conf.zoom_assist_button_disable, 0 ),
 #endif
     MENU_ENUM2  (0x5d,LANG_MENU_MISC_DISABLE_LCD_OFF,       &conf.alt_prevent_shutdown, gui_alt_power_modes ),
+    MENU_ITEM   (0x35,(int)"Language / Sprache...",         MENUITEM_PROC,      gui_draw_load_lang, 0 ),
     MENU_ITEM   (0x2b,LANG_MENU_MAIN_RESET_OPTIONS,         MENUITEM_PROC,      gui_menuproc_reset, 0 ),
     MENU_ITEM   (0x51,LANG_MENU_BACK,                       MENUITEM_UP, 0, 0 ),
     {0}
@@ -2188,21 +2194,129 @@ CMenu chdk_settings_menu = {0x20,LANG_MENU_CHDK_SETTINGS, chdk_settings_menu_ite
 
 extern CMenu script_submenu;
 
+static void gui_menuproc_profile(int arg)
+{
+    sx280_apply_profile((sx280_profile_t)arg);
+}
+
+static CMenuItem profiles_menu_items[] = {
+    MENU_ITEM   (0x00, (int)"1. RAW Maximum",        MENUITEM_PROC, gui_menuproc_profile, PROFILE_RAW_MAXIMUM ),
+    MENU_ITEM   (0x00, (int)"2. JPEG Maximum",       MENUITEM_PROC, gui_menuproc_profile, PROFILE_JPEG_MAXIMUM ),
+    MENU_ITEM   (0x00, (int)"3. Daylight",           MENUITEM_PROC, gui_menuproc_profile, PROFILE_DAYLIGHT ),
+    MENU_ITEM   (0x00, (int)"4. Low Light",          MENUITEM_PROC, gui_menuproc_profile, PROFILE_LOW_LIGHT ),
+    MENU_ITEM   (0x00, (int)"5. Night / Tripod",     MENUITEM_PROC, gui_menuproc_profile, PROFILE_NIGHT_TRIPOD ),
+    MENU_ITEM   (0x00, (int)"6. Action / Sports",    MENUITEM_PROC, gui_menuproc_profile, PROFILE_ACTION_SPORTS ),
+    MENU_ITEM   (0x00, (int)"7. Macro",              MENUITEM_PROC, gui_menuproc_profile, PROFILE_MACRO ),
+    MENU_ITEM   (0x00, (int)"8. HDR Bracketing",     MENUITEM_PROC, gui_menuproc_profile, PROFILE_HDR_BRACKET ),
+    MENU_ITEM   (0x00, (int)"9. Time-Lapse",         MENUITEM_PROC, gui_menuproc_profile, PROFILE_TIMELAPSE ),
+    MENU_ITEM   (0x00, (int)"10. Standard / Reset",  MENUITEM_PROC, gui_menuproc_profile, PROFILE_CUSTOM ),
+    MENU_ITEM   (0x51, LANG_MENU_BACK,               MENUITEM_UP, 0, 0 ),
+    {0}
+};
+
+CMenu profiles_menu = {0x20, (int)"Photo Profiles", profiles_menu_items };
+
+extern CMenu root_menu;
+extern CMenu simple_root_menu;
+
+static void gui_menuproc_switch_expert(int arg)
+{
+    conf.simple_ui_mode = 0;
+    gui_menu_init(&root_menu);
+}
+
+static void gui_menuproc_switch_simple(int arg)
+{
+    conf.simple_ui_mode = 1;
+    gui_menu_init(&simple_root_menu);
+}
+
 static CMenuItem root_menu_items[] = {
     MENU_ITEM   (0x21,LANG_MENU_OPERATION_PARAM,            MENUITEM_SUBMENU,   &operation_submenu, 0 ),
     MENU_ITEM   (0x23,LANG_MENU_VIDEO_PARAM,                MENUITEM_SUBMENU,   &video_submenu,     0 ),
     MENU_ITEM   (0x24,LANG_MENU_MAIN_RAW_PARAM,             MENUITEM_SUBMENU,   &raw_submenu,       0 ),
     MENU_ITEM   (0x7f,LANG_MENU_EDGE_OVERLAY,               MENUITEM_SUBMENU,   &edge_overlay_submenu, 0 ),
     MENU_ITEM   (0x25,LANG_MENU_MAIN_HISTO_PARAM,           MENUITEM_SUBMENU,   &histo_submenu, 0 ),
-    MENU_ITEM   (0x26,LANG_MENU_MAIN_ZEBRA_PARAM,           MENUITEM_SUBMENU,   &zebra_submenu,     0 ),
+    MENU_ITEM   (0x26,LANG_MENU_MAIN_ZEBRA_PARAM,           MENUITEM_SUBMENU,   &zebra_submenu, 0 ),
     MENU_ITEM   (0x27,LANG_MENU_MAIN_SCRIPT_PARAM,          MENUITEM_SUBMENU,   &script_submenu,    0 ),
     MENU_ITEM   (0x22,LANG_MENU_CHDK_SETTINGS,              MENUITEM_SUBMENU,   &chdk_settings_menu, 0 ),
     MENU_ITEM   (0x29,LANG_MENU_MAIN_MISC,                  MENUITEM_SUBMENU,   &misc_submenu,      0 ),
+    MENU_ITEM   (0x35,(int)"Language / Sprache...",         MENUITEM_PROC,      gui_draw_load_lang, 0 ),
+    MENU_ITEM   (0x21,(int)"SX280 Photo Profiles",          MENUITEM_SUBMENU,   &profiles_menu,     0 ),
+    MENU_ITEM   (0x20,(int)"Simple Mode",                   MENUITEM_PROC,      gui_menuproc_switch_simple, 0 ),
     MENU_ITEM   (0x2e,LANG_MENU_USER_MENU,                  MENUITEM_SUBMENU,   &user_submenu, 0 ),             // Must be last item so it can be disabled
     {0}
 };
 
 CMenu root_menu = {0x20,LANG_MENU_MAIN_TITLE, root_menu_items };
+
+static CMenuItem simple_root_menu_items[] = {
+    MENU_ITEM   (0x21, (int)"1. Photo Profiles",             MENUITEM_SUBMENU,   &profiles_menu,     0 ),
+    MENU_ITEM   (0x24, LANG_MENU_MAIN_RAW_PARAM,             MENUITEM_SUBMENU,   &raw_submenu,       0 ),
+    MENU_ITEM   (0x23, LANG_MENU_VIDEO_PARAM,                MENUITEM_SUBMENU,   &video_submenu,     0 ),
+    MENU_ITEM   (0x22, LANG_MENU_CHDK_SETTINGS,              MENUITEM_SUBMENU,   &chdk_settings_menu, 0 ),
+    MENU_ITEM   (0x27, LANG_MENU_MAIN_SCRIPT_PARAM,          MENUITEM_SUBMENU,   &script_submenu,    0 ),
+    MENU_ITEM   (0x35, (int)"Language / Sprache...",         MENUITEM_PROC,      gui_draw_load_lang, 0 ),
+    MENU_ITEM   (0x29, (int)"CHDK Expert Mode",              MENUITEM_PROC,      gui_menuproc_switch_expert, 0 ),
+    {0}
+};
+
+CMenu simple_root_menu = {0x20, (int)"SX280 Simple Mode", simple_root_menu_items };
+
+static int sx280_contains_ci(const char *hay, const char *needle)
+{
+    if (!hay || !needle || !*needle) return 0;
+    for (; *hay; hay++) {
+        const char *h = hay;
+        const char *n = needle;
+        while (*h && *n) {
+            char ch = (*h >= 'A' && *h <= 'Z') ? (*h + 32) : *h;
+            char cn = (*n >= 'A' && *n <= 'Z') ? (*n + 32) : *n;
+            if (ch != cn) break;
+            h++;
+            n++;
+        }
+        if (!*n) return 1;
+    }
+    return 0;
+}
+
+static void sx280_sync_lang_and_codepage(const char *fn, int apply_cp)
+{
+    int is_de = sx280_contains_ci(fn, "german");
+    int i;
+    for (i = 0; i < PROFILE_COUNT; i++) {
+        const sx280_profile_config_t *cfg = sx280_get_profile((sx280_profile_t)i);
+        if (cfg) {
+            profiles_menu_items[i].text = (int)(is_de ? cfg->name_de : cfg->name_en);
+        }
+    }
+    profiles_menu.title = (int)(is_de ? "SX280 Aufnahmeprofile" : "SX280 Photo Profiles");
+    root_menu_items[10].text = (int)(is_de ? "SX280 Aufnahmeprofile" : "SX280 Photo Profiles");
+    root_menu_items[11].text = (int)(is_de ? "Einfacher Modus" : "Simple Mode");
+    simple_root_menu_items[0].text = (int)(is_de ? "1. Aufnahmeprofile" : "1. Photo Profiles");
+    simple_root_menu_items[6].text = (int)(is_de ? "CHDK Expertenmodus" : "CHDK Expert Mode");
+
+    if (apply_cp && fn && fn[0]) {
+        int cp = FONT_CP_WIN_1252;
+        if (sx280_contains_ci(fn, "russian") || sx280_contains_ci(fn, "ukrain")) {
+            cp = FONT_CP_WIN_1251;
+        } else if (sx280_contains_ci(fn, "czech") || sx280_contains_ci(fn, "slovak") ||
+                   sx280_contains_ci(fn, "polish") || sx280_contains_ci(fn, "croat") ||
+                   sx280_contains_ci(fn, "hungar") || sx280_contains_ci(fn, "roman")) {
+            cp = FONT_CP_WIN_1250;
+        } else if (sx280_contains_ci(fn, "greek")) {
+            cp = FONT_CP_WIN_1253;
+        } else if (sx280_contains_ci(fn, "turk")) {
+            cp = FONT_CP_WIN_1254;
+        } else if (sx280_contains_ci(fn, "eston")) {
+            cp = FONT_CP_WIN_1257;
+        }
+        conf.font_cp = cp;
+        font_set(conf.font_cp);
+        rbf_load_from_file(conf.menu_rbf_file, FONT_CP_WIN);
+    }
+}
 
 //-------------------------------------------------------------------
 
@@ -2392,6 +2506,7 @@ void gui_set_need_redraw()
 //-------------------------------------------------------------------
 void gui_init()
 {
+    sx280_sync_lang_and_codepage(conf.lang_file, 0);
     gui_set_mode(&defaultGuiHandler);
     if (conf.start_sound > 0)
     {
@@ -2900,6 +3015,8 @@ void gui_chdk_kbd_process_menu_btn()
         ((conf.user_menu_as_root && !camera_info.state.is_shutter_half_press) ||
          (!conf.user_menu_as_root && camera_info.state.is_shutter_half_press)))
         gui_menu_init(&user_submenu);
+    else if (conf.simple_ui_mode)
+        gui_menu_init(&simple_root_menu);
     else
         gui_menu_init(&root_menu);
 

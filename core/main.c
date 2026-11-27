@@ -18,6 +18,7 @@
 #endif
 
 #include "kbd_common.h"
+#include "sx280_logger.h"
 
 //==========================================================
 
@@ -188,6 +189,8 @@ void core_spytask()
     };
     for (i = 0; i < (int)(sizeof(chdk_dirs) / sizeof(char*)); i++)
         mkdir_if_not_exist(chdk_dirs[i]);
+
+    sx280_logger_boot();
 
     int no_modules_flag = stat("A/CHDK/MODULES/FSELECT.FLT",0) ? 1 : 0 ;
 
@@ -377,6 +380,9 @@ void core_spytask()
 
         // Process async module unload requests
         module_tick_unloader();
+
+        // Native SX280 Flight Recorder + Power Keepalive
+        sx280_logger_tick();
 
         msleep(20);
         chdk_started_flag=1;

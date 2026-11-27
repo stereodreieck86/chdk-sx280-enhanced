@@ -490,7 +490,7 @@ void usb_shoot_module_zoom()
         - focus & exposure on each half press - shoots on full press
         - times out in 5 seconds after the last full press
   ---------------------------------------------------------------------------------------------------*/
-extern void bracketing_step() ;
+extern void bracketing_step(int set_later) ;
 extern void bracketing_reset() ;
 
 void usb_bracketing_done()
