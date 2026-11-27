@@ -5,6 +5,7 @@
 #include "keyboard.h"
 #include "gui.h"
 #include "gui_draw.h"
+#include "sx280_logger.h"
 
 #define MAX_CONSOLE_LINES       (camera_screen.height/FONT_HEIGHT-1)
 #define MAX_CONSOLE_HISTORY     30
@@ -108,6 +109,7 @@ void console_draw(int force_redraw)
 
 void console_add_line(const char *str)
 {
+    sx280_log_console(str);
 	// Set console_autoredraw to -1 to stop script print statements from being displayed on screen
 	// Can be used to send script output to a file (using print_screen function); but not have it displayed
 	// on the LCD.

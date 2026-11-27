@@ -21,6 +21,7 @@
 #include "module_load.h"
 #include "module_exportlist.h"
 #include "module_hash.h"
+#include "sx280_logger.h"
 
 //-----------------------------------------------
 
@@ -182,6 +183,7 @@ static int module_find(unsigned int hash)
 // Display module load/unload error message on console
 static void moduleload_error(const char* name, const char* text)
 {
+    sx280_log_moderr(name, text);
     extern volatile int chdk_started_flag;
     if (chdk_started_flag)
     {
