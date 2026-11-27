@@ -437,3 +437,8 @@
             GiveSemaphore
             CreateBinarySemaphore
             DeleteSemaphore
+
+            sx280_apply_profile
+            sx280_get_profile
+            sx280_get_active_profile
+            sx280_profiles_init
