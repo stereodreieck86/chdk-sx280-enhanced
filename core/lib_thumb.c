@@ -290,7 +290,10 @@ extern char palette_control;
 static char *palbackup = NULL;      // backup for the original palette
 static int palette_is_clean = 0;
 static long pending_screenerase = 0;
-const unsigned int handled_palette = 0; // model dependent constant, 0 for m3 and m10
+#ifndef CAM_CLEAN_OVERLAY_PALETTE
+#define CAM_CLEAN_OVERLAY_PALETTE 0
+#endif
+const unsigned int handled_palette = CAM_CLEAN_OVERLAY_PALETTE; // model dependent constant, 0 for m3, m10, sx280
 void pal_clean() {
     if (palette_is_clean) return;
     if (active_palette_buffer == handled_palette) {

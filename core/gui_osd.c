@@ -1360,6 +1360,10 @@ static void gui_default_draw(int force_redraw)
         librawevhisto->erase();
     }
 
+    // Do not draw shooting OSD in playback mode (unless in ALT mode)
+    if (camera_info.state.mode_play)
+        return;
+
 #if !CAM_SHOW_OSD_IN_SHOOT_MENU
     if (!(conf.show_osd && (canon_menu_active==(int)&canon_menu_active-4) && (canon_shoot_menu_active==0))) return;
 #else

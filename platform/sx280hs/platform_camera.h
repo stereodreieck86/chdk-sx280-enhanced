@@ -63,7 +63,8 @@
     -75055, 1000000,  440444, 1000000,  11367, 1000000, \
      -5801, 1000000,   71589, 1000000, 118914, 1000000
 
-    #define cam_CalibrationIlluminant1          17
+    #undef  cam_CalibrationIlluminant1
+    #define cam_CalibrationIlluminant1          1       // Daylight (r6354 fix)
 
     #define CAM_JPEG_WIDTH                      4000
     #define CAM_JPEG_HEIGHT                     3000
@@ -82,7 +83,7 @@
     #define CAM_EXT_TV_RANGE                    1
 
     #undef  CAM_HAS_ERASE_BUTTON
-    #define CAM_SHOW_OSD_IN_SHOOT_MENU          1
+    #undef  CAM_SHOW_OSD_IN_SHOOT_MENU
 
     #define DRAW_ON_ACTIVE_BITMAP_BUFFER_ONLY   1           // Draw pixels on active bitmap buffer only.
     //#undef  CAM_USES_ASPECT_CORRECTION
@@ -139,6 +140,9 @@
 
     #define CAM_SD_OVER_IN_AF  1
     #define CAM_SD_OVER_IN_MF  1
+
+// NOTE (Phase 15 Safety): CAM_CLEAN_OVERLAY intentionally disabled on sx280hs
+// (lib_thumb.c uses m3/m10 magic palette_control |= 3; unverified on sx280hs XIMR)
 
 // sx270 shares same firmware + CHDK source but does not have WIFI hardware
 #if PLATFORMID != 12896
