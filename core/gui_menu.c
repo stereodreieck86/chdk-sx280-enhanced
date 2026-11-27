@@ -9,6 +9,7 @@
 #include "gui_user_menu.h"
 #include "gui_lang.h"
 #include "ctype.h"
+#include "clock.h"
 
 #include "gui_palette.h"
 
@@ -39,6 +40,7 @@ static int          int_incr = 1;
 
 // Set if ALT entered and user menu set to load automatically
 int gui_user_menu_flag;
+static int gui_menu_open_tick = 0;
 
 //-------------------------------------------------------------------
 
@@ -194,6 +196,7 @@ CMenu* get_curr_menu()
 void gui_menu_init(CMenu *menu_ptr) {
 
     gui_user_menu_flag = 0;
+    gui_menu_open_tick = get_tick_count();
 
     if (menu_ptr) {
         if (conf.menu_select_first_entry)
@@ -1064,6 +1067,11 @@ static void gui_menu_draw(int enforce_redraw)
 // Menu button handler for Menu mode
 static void gui_menu_kbd_process_menu_btn()
 {
+    // Debounce guard: prevent immediate exit due to key bounce or long-press
+    if ((int)(get_tick_count() - gui_menu_open_tick) < 250)
+    {
+        return;
+    }
     conf_save();
 
     if ( gui_user_menu_flag )
