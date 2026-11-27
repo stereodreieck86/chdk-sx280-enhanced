@@ -1967,11 +1967,53 @@ static CMenu zebra_submenu = {0x26,LANG_MENU_ZEBRA_TITLE, zebra_submenu_items };
 
 //-------------------------------------------------------------------
 
+static int chdk_contains_ci(const char *hay, const char *needle)
+{
+    if (!hay || !needle || !*needle) return 0;
+    for (; *hay; hay++) {
+        const char *h = hay;
+        const char *n = needle;
+        while (*h && *n) {
+            char ch = (*h >= 'A' && *h <= 'Z') ? (*h + 32) : *h;
+            char cn = (*n >= 'A' && *n <= 'Z') ? (*n + 32) : *n;
+            if (ch != cn) break;
+            h++;
+            n++;
+        }
+        if (!*n) return 1;
+    }
+    return 0;
+}
+
+static void chdk_auto_sync_codepage(const char *fn)
+{
+    if (!fn || !fn[0]) return;
+    int cp = FONT_CP_WIN_1252;
+    if (chdk_contains_ci(fn, "russian") || chdk_contains_ci(fn, "ukrain")) {
+        cp = FONT_CP_WIN_1251;
+    } else if (chdk_contains_ci(fn, "czech") || chdk_contains_ci(fn, "slovak") ||
+               chdk_contains_ci(fn, "polish") || chdk_contains_ci(fn, "croat") ||
+               chdk_contains_ci(fn, "hungar") || chdk_contains_ci(fn, "roman")) {
+        cp = FONT_CP_WIN_1250;
+    } else if (chdk_contains_ci(fn, "greek")) {
+        cp = FONT_CP_WIN_1253;
+    } else if (chdk_contains_ci(fn, "turk")) {
+        cp = FONT_CP_WIN_1254;
+    } else if (chdk_contains_ci(fn, "eston")) {
+        cp = FONT_CP_WIN_1257;
+    }
+    conf.font_cp = cp;
+    font_set(conf.font_cp);
+    rbf_load_from_file(conf.menu_rbf_file, FONT_CP_WIN);
+}
+
 static void gui_draw_lang_selected(const char *fn)
 {
     if (fn) {
         strcpy(conf.lang_file, fn);
+        chdk_auto_sync_codepage(conf.lang_file);
         lang_load_from_file(conf.lang_file);
+        conf_save();
         gui_menu_init(NULL);
     }
 }
@@ -2177,6 +2219,7 @@ static CMenuItem chdk_settings_menu_items[] = {
     MENU_ITEM   (0x5c,LANG_MENU_MISC_ZOOM_ASSIST,           MENUITEM_BOOL,      &conf.zoom_assist_button_disable, 0 ),
 #endif
     MENU_ENUM2  (0x5d,LANG_MENU_MISC_DISABLE_LCD_OFF,       &conf.alt_prevent_shutdown, gui_alt_power_modes ),
+    MENU_ITEM   (0x35,(int)"Language / Sprache...",         MENUITEM_PROC,      gui_draw_load_lang, 0 ),
     MENU_ITEM   (0x2b,LANG_MENU_MAIN_RESET_OPTIONS,         MENUITEM_PROC,      gui_menuproc_reset, 0 ),
     MENU_ITEM   (0x51,LANG_MENU_BACK,                       MENUITEM_UP, 0, 0 ),
     {0}
@@ -2198,6 +2241,7 @@ static CMenuItem root_menu_items[] = {
     MENU_ITEM   (0x27,LANG_MENU_MAIN_SCRIPT_PARAM,          MENUITEM_SUBMENU,   &script_submenu,    0 ),
     MENU_ITEM   (0x22,LANG_MENU_CHDK_SETTINGS,              MENUITEM_SUBMENU,   &chdk_settings_menu, 0 ),
     MENU_ITEM   (0x29,LANG_MENU_MAIN_MISC,                  MENUITEM_SUBMENU,   &misc_submenu,      0 ),
+    MENU_ITEM   (0x35,(int)"Language / Sprache...",         MENUITEM_PROC,      gui_draw_load_lang, 0 ),
     MENU_ITEM   (0x2e,LANG_MENU_USER_MENU,                  MENUITEM_SUBMENU,   &user_submenu, 0 ),             // Must be last item so it can be disabled
     {0}
 };
