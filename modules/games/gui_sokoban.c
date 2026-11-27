@@ -12,6 +12,8 @@
 #include "module_def.h"
 #include "simple_module.h"
 
+static void __attribute__((long_call)) my_fclose(FILE *f) { fclose(f); }
+
 //-------------------------------------------------------------------
 
 typedef struct
@@ -157,6 +159,7 @@ static void sokoban_undo_reset() {
 static void sokoban_set_level(int lvl) {
     int x=0, y, w=0, h=0;
     const char *p;
+
     char *buf;
     FILE *fd;    
     int start,len;
@@ -171,18 +174,18 @@ static void sokoban_set_level(int lvl) {
 
     buf=malloc(len+1);
     if(!buf) {
-        fclose(fd);
+        my_fclose(fd);
         return;
     }
 
     if(fseek(fd,start,SEEK_SET) != 0) {
-        fclose(fd);
+        my_fclose(fd);
         free(buf);
         return;
     }
     fread(buf,1,len,fd);
     buf[len]=0;
-    fclose(fd);
+    my_fclose(fd);
 
     p=buf;
 
@@ -298,13 +301,13 @@ int gui_sokoban_init() {
 
         buf=malloc(st.st_size+1);
         if(!buf) {
-            fclose(fd);
+            my_fclose(fd);
             return 0;
         }
 
         fread(buf,1,st.st_size,fd);
         buf[st.st_size]=0;
-        fclose(fd);
+        my_fclose(fd);
         p = buf;
         do {
             // skip to the first level char

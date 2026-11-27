@@ -4,7 +4,7 @@ include $(topdir)makefile_modules.inc
 
 SUBDIRS=$(llua) $(lubasic) $(larmutil) $(llang) $(lfont) $(lcore) $(llibc)
 
-CFLAGS+=-fno-reorder-functions -I$(llua)
+CFLAGS+=-fno-reorder-functions -mlong-calls -I$(llua)
 
 LDOPTS=-nostdlib -Wl,--allow-shlib-undefined -Wl,-T,$(tools)/link-boot.ld -Wl,-N,-Ttext,0x24 -r -Wl,-d
 
@@ -36,7 +36,7 @@ $O%.flt: $(llibc)/$Olibc.a
 
 $O%.o: games/%.c
 	@echo $< '->' $@
-	$(CC) $(CFLAGS) -nostdinc -c -o $@ $<
+	$(CC) $(CFLAGS) -mlong-calls -nostdinc -c -o $@ $<
 
 $Onothumb.o: nothumb.c
 	@echo $< '->' $@

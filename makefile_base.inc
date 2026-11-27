@@ -112,26 +112,26 @@ distclean: distclean-recursive
 clean-recursive:
 	@for i in $(SUBDIRS); do \
 	    echo \>\> Cleaning in $(FOLDER)$$i; \
-	    $(MAKE) -C $$i FOLDER="$(FOLDER)$$i/" clean || exit 1; \
+	    "$(MAKE)" -C $$i FOLDER="$(FOLDER)$$i/" clean || exit 1; \
 	done
 
 distclean-recursive:
 	@for i in $(SUBDIRS); do \
 	    echo \>\> Distcleaning in $(FOLDER)$$i; \
-	    $(MAKE) -C $$i FOLDER="$(FOLDER)$$i/" distclean || exit 1; \
+	    "$(MAKE)" -C $$i FOLDER="$(FOLDER)$$i/" distclean || exit 1; \
 	done
 
 all-recursive:
 	@for i in $(SUBDIRS); do \
 	    echo \>\> Entering to $(FOLDER)$$i; \
-	    $(MAKE) -C $$i FOLDER="$(FOLDER)$$i/" || exit 1; \
+	    "$(MAKE)" -C $$i FOLDER="$(FOLDER)$$i/" || exit 1; \
 	    echo \<\< Leaving $(FOLDER)$$i; \
 	done
 
 depend-recursive:
 	@for i in $(SUBDIRS); do \
 	    echo \>\> Entering to $(FOLDER)$$i; \
-	    $(MAKE) -C $$i FOLDER="$(FOLDER)$$i/" depend || exit 1; \
+	    "$(MAKE)" -C $$i FOLDER="$(FOLDER)$$i/" depend || exit 1; \
 	    echo \<\< Leaving $(FOLDER)$$i; \
 	done
 
